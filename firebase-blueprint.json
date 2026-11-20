@@ -1,0 +1,388 @@
+{
+  "entities": {
+    "SchoolSettings": {
+      "title": "SchoolSettings",
+      "description": "Pengaturan identitas sekolah, guru, kepala sekolah, dan KKTP.",
+      "type": "object",
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "schoolName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "teacherName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "teacherNip": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "principalName": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "principalNip": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "academicYear": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "semester": {
+          "type": "string",
+          "enum": ["Ganjil", "Genap"]
+        },
+        "kktp": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "workspaceId",
+        "schoolName",
+        "subject",
+        "teacherName",
+        "teacherNip",
+        "principalName",
+        "principalNip",
+        "academicYear",
+        "semester",
+        "kktp",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "StudentGradeRecord": {
+      "title": "StudentGradeRecord",
+      "description": "Data siswa dan nilai PJOK per siswa per kelas (Kelas 1 s.d. Kelas 6).",
+      "type": "object",
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "localId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "kelas": {
+          "type": "string",
+          "enum": ["Kelas 1", "Kelas 2", "Kelas 3", "Kelas 4", "Kelas 5", "Kelas 6"]
+        },
+        "nis": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["L", "P"]
+        },
+        "dailyScore": {
+          "type": "number"
+        },
+        "practicalScore": {
+          "type": "number"
+        },
+        "midtermScore": {
+          "type": "number"
+        },
+        "finalScore": {
+          "type": "number"
+        },
+        "finalReportScore": {
+          "type": "number"
+        },
+        "predicate": {
+          "type": "string",
+          "enum": ["A", "B", "C", "D"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Tuntas", "Remedial"]
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "heightCm": {
+          "type": "number"
+        },
+        "weightKg": {
+          "type": "number"
+        },
+        "favoriteSport": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "isSelfRegistered": {
+          "type": "boolean"
+        },
+        "clientUpdatedAt": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "workspaceId",
+        "localId",
+        "kelas",
+        "nis",
+        "name",
+        "gender",
+        "dailyScore",
+        "practicalScore",
+        "midtermScore",
+        "finalScore",
+        "finalReportScore",
+        "predicate",
+        "status",
+        "notes",
+        "heightCm",
+        "weightKg",
+        "favoriteSport",
+        "isSelfRegistered",
+        "clientUpdatedAt",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AttendanceSessionRecord": {
+      "title": "AttendanceSessionRecord",
+      "description": "Data absensi siswa per pertemuan (tanggal) per kelas.",
+      "type": "object",
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "kelas": {
+          "type": "string",
+          "enum": ["Kelas 1", "Kelas 2", "Kelas 3", "Kelas 4", "Kelas 5", "Kelas 6"]
+        },
+        "date": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "topic": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "records": {
+          "type": "object"
+        },
+        "clientUpdatedAt": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "workspaceId",
+        "kelas",
+        "date",
+        "topic",
+        "records",
+        "clientUpdatedAt",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CurriculumMeta": {
+      "title": "CurriculumMeta",
+      "description": "Metadata file sumber CP/ATP perangkat pembelajaran yang terakhir diunggah.",
+      "type": "object",
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sourceFileName": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "importedAt": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "detectedSheets": {
+          "type": "array"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "workspaceId",
+        "sourceFileName",
+        "importedAt",
+        "detectedSheets",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CurriculumClassPackage": {
+      "title": "CurriculumClassPackage",
+      "description": "Paket perangkat pembelajaran PJOK terpadu (CP, ATP, PROTA, PROMES, Materi, Modul Ajar, Asesmen) per kelas.",
+      "type": "object",
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "kelas": {
+          "type": "string",
+          "enum": ["Kelas 1", "Kelas 2", "Kelas 3", "Kelas 4", "Kelas 5", "Kelas 6"]
+        },
+        "fase": {
+          "type": "string",
+          "enum": ["Fase A", "Fase B", "Fase C"]
+        },
+        "identity": {
+          "type": "object"
+        },
+        "cpSourceSheet": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "atpSourceSheet": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "cpRows": {
+          "type": "array"
+        },
+        "atpRows": {
+          "type": "array"
+        },
+        "protaRows": {
+          "type": "array"
+        },
+        "promesRows": {
+          "type": "array"
+        },
+        "materials": {
+          "type": "array"
+        },
+        "modulAjarList": {
+          "type": "array"
+        },
+        "assessmentPackage": {
+          "type": "object"
+        },
+        "totalJpSemester1": {
+          "type": "number"
+        },
+        "packageUpdatedAt": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "workspaceId",
+        "kelas",
+        "fase",
+        "identity",
+        "cpSourceSheet",
+        "atpSourceSheet",
+        "cpRows",
+        "atpRows",
+        "protaRows",
+        "promesRows",
+        "materials",
+        "modulAjarList",
+        "assessmentPackage",
+        "totalJpSemester1",
+        "packageUpdatedAt",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/workspaces/{workspaceId}/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/SchoolSettings" },
+      "description": "Pengaturan sekolah dan standar KKTP per ruang kerja sekolah."
+    },
+    "/workspaces/{workspaceId}/students/{studentId}": {
+      "schema": { "$ref": "#/entities/StudentGradeRecord" },
+      "description": "Data siswa dan nilai rapor PJOK per kelas."
+    },
+    "/workspaces/{workspaceId}/attendanceSessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/AttendanceSessionRecord" },
+      "description": "Sesi absensi per pertemuan per kelas."
+    },
+    "/workspaces/{workspaceId}/curriculumMeta/{metaId}": {
+      "schema": { "$ref": "#/entities/CurriculumMeta" },
+      "description": "Metadata impor perangkat pembelajaran terakhir."
+    },
+    "/workspaces/{workspaceId}/curriculumClasses/{classKey}": {
+      "schema": { "$ref": "#/entities/CurriculumClassPackage" },
+      "description": "Paket perangkat pembelajaran CP, ATP, PROTA, PROMES, Materi, Modul Ajar, Asesmen per kelas."
+    }
+  }
+}

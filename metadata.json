@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Nilai PJOK UPTD SDN Lokojuli",
+  "description": "Aplikasi pengolahan nilai mata pelajaran PJOK kelas 1-6 untuk UPTD SD Negeri Lokojuli dengan kalkulasi nilai rapor otomatis dan ekspor Excel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

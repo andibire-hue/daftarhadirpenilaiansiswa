@@ -1,0 +1,281 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core Primitives
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidWorkspaceId(wsId) {
+      return wsId is string && wsId.size() >= 6 && wsId.size() <= 128 && wsId.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidKelas(k) {
+      return k is string && k in ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'];
+    }
+
+    function isValidScore(n) {
+      return n is number && n >= 0 && n <= 100;
+    }
+
+    // Entity Validators
+    function isValidSchoolSettings(data, wsId) {
+      return data.keys().hasAll([
+          'workspaceId', 'schoolName', 'subject', 'teacherName',
+          'teacherNip', 'principalName', 'principalNip',
+          'academicYear', 'semester', 'kktp', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'workspaceId', 'schoolName', 'subject', 'teacherName',
+          'teacherNip', 'principalName', 'principalNip',
+          'academicYear', 'semester', 'kktp', 'createdAt', 'updatedAt'
+        ])
+        && data.workspaceId is string && data.workspaceId == wsId
+        && data.schoolName is string && data.schoolName.size() >= 1 && data.schoolName.size() <= 150
+        && data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 150
+        && data.teacherName is string && data.teacherName.size() >= 1 && data.teacherName.size() <= 150
+        && data.teacherNip is string && data.teacherNip.size() <= 60
+        && data.principalName is string && data.principalName.size() <= 150
+        && data.principalNip is string && data.principalNip.size() <= 60
+        && data.academicYear is string && data.academicYear.size() >= 1 && data.academicYear.size() <= 40
+        && data.semester is string && data.semester in ['Ganjil', 'Genap']
+        && data.kktp is number && data.kktp >= 0 && data.kktp <= 100
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidStudentGrade(data, wsId) {
+      return data.keys().hasAll([
+          'workspaceId', 'localId', 'kelas', 'nis', 'name', 'gender',
+          'dailyScore', 'practicalScore', 'midtermScore',
+          'finalScore', 'finalReportScore', 'predicate', 'status',
+          'notes', 'heightCm', 'weightKg', 'favoriteSport',
+          'isSelfRegistered', 'clientUpdatedAt', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'workspaceId', 'localId', 'kelas', 'nis', 'name', 'gender',
+          'dailyScore', 'practicalScore', 'midtermScore',
+          'finalScore', 'finalReportScore', 'predicate', 'status',
+          'notes', 'heightCm', 'weightKg', 'favoriteSport',
+          'isSelfRegistered', 'clientUpdatedAt', 'createdAt', 'updatedAt'
+        ])
+        && data.workspaceId is string && data.workspaceId == wsId
+        && data.localId is string && data.localId.size() >= 1 && data.localId.size() <= 128
+        && isValidKelas(data.kelas)
+        && data.nis is string && data.nis.size() <= 40
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 150
+        && data.gender is string && data.gender in ['L', 'P']
+        && isValidScore(data.dailyScore)
+        && isValidScore(data.practicalScore)
+        && isValidScore(data.midtermScore)
+        && isValidScore(data.finalScore)
+        && isValidScore(data.finalReportScore)
+        && data.predicate is string && data.predicate in ['A', 'B', 'C', 'D']
+        && data.status is string && data.status in ['Tuntas', 'Remedial']
+        && data.notes is string && data.notes.size() <= 500
+        && data.heightCm is number && data.heightCm >= 0 && data.heightCm <= 300
+        && data.weightKg is number && data.weightKg >= 0 && data.weightKg <= 300
+        && data.favoriteSport is string && data.favoriteSport.size() <= 100
+        && data.isSelfRegistered is bool
+        && data.clientUpdatedAt is string && data.clientUpdatedAt.size() <= 60
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAttendanceSession(data, wsId) {
+      return data.keys().hasAll([
+          'workspaceId', 'kelas', 'date', 'topic',
+          'records', 'clientUpdatedAt', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'workspaceId', 'kelas', 'date', 'topic',
+          'records', 'clientUpdatedAt', 'createdAt', 'updatedAt'
+        ])
+        && data.workspaceId is string && data.workspaceId == wsId
+        && isValidKelas(data.kelas)
+        && data.date is string && data.date.size() >= 1 && data.date.size() <= 30
+        && data.topic is string && data.topic.size() <= 200
+        && data.records is map && data.records.size() <= 100
+        && data.clientUpdatedAt is string && data.clientUpdatedAt.size() <= 60
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidCurriculumMeta(data, wsId) {
+      return data.keys().hasAll([
+          'workspaceId', 'sourceFileName', 'importedAt',
+          'detectedSheets', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'workspaceId', 'sourceFileName', 'importedAt',
+          'detectedSheets', 'createdAt', 'updatedAt'
+        ])
+        && data.workspaceId is string && data.workspaceId == wsId
+        && data.sourceFileName is string && data.sourceFileName.size() <= 200
+        && data.importedAt is string && data.importedAt.size() <= 60
+        && data.detectedSheets is list && data.detectedSheets.size() <= 40
+        && (data.detectedSheets.size() == 0 || data.detectedSheets[0] is string)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidCurriculumClass(data, wsId) {
+      return data.keys().hasAll([
+          'workspaceId', 'kelas', 'fase', 'identity',
+          'cpSourceSheet', 'atpSourceSheet', 'cpRows', 'atpRows',
+          'protaRows', 'promesRows', 'materials', 'modulAjarList',
+          'assessmentPackage', 'totalJpSemester1', 'packageUpdatedAt',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'workspaceId', 'kelas', 'fase', 'identity',
+          'cpSourceSheet', 'atpSourceSheet', 'cpRows', 'atpRows',
+          'protaRows', 'promesRows', 'materials', 'modulAjarList',
+          'assessmentPackage', 'totalJpSemester1', 'packageUpdatedAt',
+          'createdAt', 'updatedAt'
+        ])
+        && data.workspaceId is string && data.workspaceId == wsId
+        && isValidKelas(data.kelas)
+        && data.fase is string && data.fase in ['Fase A', 'Fase B', 'Fase C']
+        && data.identity is map && data.identity.size() <= 20
+        && data.cpSourceSheet is string && data.cpSourceSheet.size() <= 120
+        && data.atpSourceSheet is string && data.atpSourceSheet.size() <= 120
+        && data.cpRows is list && data.cpRows.size() <= 30
+        && (data.cpRows.size() == 0 || data.cpRows[0] is map)
+        && data.atpRows is list && data.atpRows.size() <= 60
+        && (data.atpRows.size() == 0 || data.atpRows[0] is map)
+        && data.protaRows is list && data.protaRows.size() <= 60
+        && (data.protaRows.size() == 0 || data.protaRows[0] is map)
+        && data.promesRows is list && data.promesRows.size() <= 60
+        && (data.promesRows.size() == 0 || data.promesRows[0] is map)
+        && data.materials is list && data.materials.size() <= 60
+        && (data.materials.size() == 0 || data.materials[0] is map)
+        && data.modulAjarList is list && data.modulAjarList.size() <= 60
+        && (data.modulAjarList.size() == 0 || data.modulAjarList[0] is map)
+        && data.assessmentPackage is map && data.assessmentPackage.size() <= 20
+        && data.totalJpSemester1 is number && data.totalJpSemester1 >= 0 && data.totalJpSemester1 <= 500
+        && data.packageUpdatedAt is string && data.packageUpdatedAt.size() <= 60
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Workspace Collections (No Google Login required; workspace enumeration blocked)
+    match /workspaces/{workspaceId} {
+      allow read, write: if false;
+
+      match /settings/{settingId} {
+        allow get: if isValidWorkspaceId(workspaceId) && isValidId(settingId) && existing().workspaceId == workspaceId;
+        allow list: if isValidWorkspaceId(workspaceId) && existing().workspaceId == workspaceId;
+        allow create: if isValidWorkspaceId(workspaceId) && isValidId(settingId)
+          && isValidSchoolSettings(incoming(), workspaceId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidWorkspaceId(workspaceId) && isValidId(settingId)
+          && isValidSchoolSettings(incoming(), workspaceId)
+          && incoming().workspaceId == existing().workspaceId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'schoolName', 'subject', 'teacherName', 'teacherNip',
+            'principalName', 'principalNip', 'academicYear',
+            'semester', 'kktp', 'updatedAt'
+          ]);
+        allow delete: if isValidWorkspaceId(workspaceId) && isValidId(settingId) && existing().workspaceId == workspaceId;
+      }
+
+      match /students/{studentId} {
+        allow get: if isValidWorkspaceId(workspaceId) && isValidId(studentId) && existing().workspaceId == workspaceId;
+        allow list: if isValidWorkspaceId(workspaceId) && existing().workspaceId == workspaceId;
+        allow create: if isValidWorkspaceId(workspaceId) && isValidId(studentId)
+          && isValidStudentGrade(incoming(), workspaceId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidWorkspaceId(workspaceId) && isValidId(studentId)
+          && isValidStudentGrade(incoming(), workspaceId)
+          && incoming().workspaceId == existing().workspaceId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'localId', 'kelas', 'nis', 'name', 'gender',
+            'dailyScore', 'practicalScore', 'midtermScore',
+            'finalScore', 'finalReportScore', 'predicate', 'status',
+            'notes', 'heightCm', 'weightKg', 'favoriteSport',
+            'isSelfRegistered', 'clientUpdatedAt', 'updatedAt'
+          ]);
+        allow delete: if isValidWorkspaceId(workspaceId) && isValidId(studentId) && existing().workspaceId == workspaceId;
+      }
+
+      match /attendanceSessions/{sessionId} {
+        allow get: if isValidWorkspaceId(workspaceId) && isValidId(sessionId) && existing().workspaceId == workspaceId;
+        allow list: if isValidWorkspaceId(workspaceId) && existing().workspaceId == workspaceId;
+        allow create: if isValidWorkspaceId(workspaceId) && isValidId(sessionId)
+          && isValidAttendanceSession(incoming(), workspaceId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidWorkspaceId(workspaceId) && isValidId(sessionId)
+          && isValidAttendanceSession(incoming(), workspaceId)
+          && incoming().workspaceId == existing().workspaceId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'kelas', 'date', 'topic', 'records', 'clientUpdatedAt', 'updatedAt'
+          ]);
+        allow delete: if isValidWorkspaceId(workspaceId) && isValidId(sessionId) && existing().workspaceId == workspaceId;
+      }
+
+      match /curriculumMeta/{metaId} {
+        allow get: if isValidWorkspaceId(workspaceId) && isValidId(metaId) && existing().workspaceId == workspaceId;
+        allow list: if isValidWorkspaceId(workspaceId) && existing().workspaceId == workspaceId;
+        allow create: if isValidWorkspaceId(workspaceId) && isValidId(metaId)
+          && isValidCurriculumMeta(incoming(), workspaceId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidWorkspaceId(workspaceId) && isValidId(metaId)
+          && isValidCurriculumMeta(incoming(), workspaceId)
+          && incoming().workspaceId == existing().workspaceId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'sourceFileName', 'importedAt', 'detectedSheets', 'updatedAt'
+          ]);
+        allow delete: if isValidWorkspaceId(workspaceId) && isValidId(metaId) && existing().workspaceId == workspaceId;
+      }
+
+      match /curriculumClasses/{classKey} {
+        allow get: if isValidWorkspaceId(workspaceId) && isValidId(classKey) && existing().workspaceId == workspaceId;
+        allow list: if isValidWorkspaceId(workspaceId) && existing().workspaceId == workspaceId;
+        allow create: if isValidWorkspaceId(workspaceId) && isValidId(classKey)
+          && isValidCurriculumClass(incoming(), workspaceId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidWorkspaceId(workspaceId) && isValidId(classKey)
+          && isValidCurriculumClass(incoming(), workspaceId)
+          && incoming().workspaceId == existing().workspaceId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'kelas', 'fase', 'identity', 'cpSourceSheet', 'atpSourceSheet',
+            'cpRows', 'atpRows', 'protaRows', 'promesRows',
+            'materials', 'modulAjarList', 'assessmentPackage',
+            'totalJpSemester1', 'packageUpdatedAt', 'updatedAt'
+          ]);
+        allow delete: if isValidWorkspaceId(workspaceId) && isValidId(classKey) && existing().workspaceId == workspaceId;
+      }
+    }
+  }
+}
